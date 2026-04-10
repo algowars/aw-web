@@ -16,7 +16,7 @@ export default function LandingNavbar() {
         <ul className="col-span-1 flex items-center justify-center gap-8">
           <li>
             <Link
-              href="/auth"
+              href={routerConfig.home.path}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Home
@@ -24,7 +24,7 @@ export default function LandingNavbar() {
           </li>
           <li>
             <Link
-              href="/auth"
+              href={routerConfig.problems.path}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Problems
@@ -32,7 +32,7 @@ export default function LandingNavbar() {
           </li>
           <li>
             <Link
-              href="/auth"
+              href={routerConfig.leaderboards.path}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Leaderboards
@@ -42,12 +42,12 @@ export default function LandingNavbar() {
         <ul className="col-span-1 flex items-center justify-end gap-6">
           <li>
             <Button size="lg" asChild>
-              <Link href="/auth">Log In</Link>
+              <Link href={routerConfig.login.path}>Log In</Link>
             </Button>
           </li>
           <li>
             <Link
-              href="/auth"
+              href={routerConfig.signup.path}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Sign Up
