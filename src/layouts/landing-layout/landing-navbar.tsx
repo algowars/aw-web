@@ -1,35 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { routerConfig } from "@/router-config";
-import { auth, signOut } from "@/server/auth";
 import { ModeToggle } from "@/theme/mode-toggle";
 import Link from "next/link";
 
-export default async function LandingNavbar() {
-  const session = await auth();
-  const isAuthenticated = !!session;
-
+export default function LandingNavbar() {
   const defaultNavLinks = [
     { name: "Home", path: routerConfig.home.path },
     { name: "Problems", path: routerConfig.problems.path },
     { name: "Leaderboards", path: routerConfig.leaderboards.path },
-  ];
-
-  const authenticatedLinks = [
-    {
-      name: "Log Out",
-      element: (
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
-        >
-          <Button variant="default" size="lg" type="submit">
-            Log Out
-          </Button>
-        </form>
-      ),
-    },
   ];
 
   const unauthenticatedLinks = [
@@ -54,8 +32,6 @@ export default async function LandingNavbar() {
     },
   ];
 
-  const navLinks = isAuthenticated ? authenticatedLinks : unauthenticatedLinks;
-
   return (
     <nav className="py-4">
       <div className="container mx-auto grid grid-cols-3 gap-4">
@@ -78,7 +54,7 @@ export default async function LandingNavbar() {
           ))}
         </ul>
         <ul className="col-span-1 flex items-center justify-end gap-6">
-          {navLinks.map((link) => (
+          {unauthenticatedLinks.map((link) => (
             <li key={link.name}>{link.element}</li>
           ))}
           <li>
