@@ -11,8 +11,21 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { auth } from "@/server/auth";
 import { db } from "@/server/db";
+import { users } from "@/server/db/schema";
+import { auth0 } from "../../lib/auth0";
+
+type AuthenticatedUser = {
+  id: string;
+  sub: string;
+  email: string | null;
+  name: string | null;
+  image: string | null;
+};
+
+type AuthSession = {
+  user: AuthenticatedUser;
+} | null;
 
 /**
  * 1. CONTEXT
@@ -27,11 +40,42 @@ import { db } from "@/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await auth();
+  const auth0Session = await auth0.getSession();
+
+  let sessionUser: AuthenticatedUser | null = null;
+
+  if (auth0Session) {
+    const [user] = await db
+      .insert(users)
+      .values({
+        sub: auth0Session.user.sub,
+        email: auth0Session.user.email ?? "",
+        name: auth0Session.user.name ?? null,
+        image: auth0Session.user.picture ?? null,
+      })
+      .onConflictDoUpdate({
+        target: users.sub,
+        set: {
+          email: auth0Session.user.email ?? "",
+          name: auth0Session.user.name ?? null,
+          image: auth0Session.user.picture ?? null,
+        },
+      })
+      .returning({ id: users.id });
+
+    if (user)
+      sessionUser = {
+        id: user.id,
+        sub: auth0Session.user.sub,
+        email: auth0Session.user.email ?? null,
+        name: auth0Session.user.name ?? null,
+        image: auth0Session.user.picture ?? null,
+      };
+  }
 
   return {
     db,
-    session,
+    session: sessionUser ? { user: sessionUser } : (null as AuthSession),
     ...opts,
   };
 };
@@ -102,19 +146,16 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 });
 
 /**
- * Public (unauthenticated) procedure
+ * Public procedure
  *
- * This is the base piece you use to build new queries and mutations on your tRPC API. It does not
- * guarantee that a user querying is authorized, but you can still access user session data if they
- * are logged in.
+ * This is the base piece you use to build new queries and mutations on your tRPC API.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
 
 /**
  * Protected (authenticated) procedure
  *
- * If you want a query or mutation to ONLY be accessible to logged in users, use this. It verifies
- * the session is valid and guarantees `ctx.session.user` is not null.
+ * If you want a query or mutation to ONLY be accessible to logged in users, use this.
  *
  * @see https://trpc.io/docs/procedures
  */
@@ -124,10 +165,10 @@ export const protectedProcedure = t.procedure
     if (!ctx.session?.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
+
     return next({
       ctx: {
-        // infers the `session` as non-nullable
-        session: { ...ctx.session, user: ctx.session.user },
+        session: ctx.session,
       },
     });
   });
