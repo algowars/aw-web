@@ -7,6 +7,11 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
+    AUTH0_SECRET: z.string(),
+    APP_BASE_URL: z.string().url(),
+    AUTH0_DOMAIN: z.string(),
+    AUTH0_CLIENT_ID: z.string(),
+    AUTH0_CLIENT_SECRET: z.string(),
     DATABASE_URL: z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -27,6 +32,11 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    AUTH0_SECRET: process.env.AUTH0_SECRET,
+    APP_BASE_URL: process.env.APP_BASE_URL,
+    AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
+    AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
+    AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
   },

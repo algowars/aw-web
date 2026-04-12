@@ -12,6 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/server/db";
+import { auth0 } from "../../lib/auth0";
 
 type AuthSession = {
   user: {
@@ -32,9 +33,17 @@ type AuthSession = {
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const auth0Session = await auth0.getSession();
+
   return {
     db,
-    session: null as AuthSession,
+    session: auth0Session
+      ? {
+          user: {
+            id: auth0Session.user.sub,
+          },
+        }
+      : (null as AuthSession),
     ...opts,
   };
 };
@@ -114,8 +123,7 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 /**
  * Protected (authenticated) procedure
  *
- * If you want a query or mutation to ONLY be accessible to logged in users, use this. Until Auth0
- * is wired into the context, this will reject unauthenticated access.
+ * If you want a query or mutation to ONLY be accessible to logged in users, use this.
  *
  * @see https://trpc.io/docs/procedures
  */

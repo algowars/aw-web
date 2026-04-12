@@ -53,6 +53,11 @@ export default function SignupForm({
               <Button type="submit">Create Account</Button>
             </Field>
             <Field>
+              <Button variant="outline" type="button" asChild>
+                <a href="/auth/login?screen_hint=signup">Sign up with Auth0</a>
+              </Button>
+            </Field>
+            <Field>
               <FieldDescription className="px-6 text-center">
                 Already have an account?{" "}
                 <Button variant="link" asChild className="px-0">
