@@ -11,7 +11,9 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
+import { eq } from "drizzle-orm";
 import { db } from "@/server/db";
+import { users } from "@/server/db/schema";
 import { auth0 } from "../../lib/auth0";
 
 type AuthSession = {
@@ -35,15 +37,32 @@ type AuthSession = {
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const auth0Session = await auth0.getSession();
 
+  let sessionUser: { id: string } | null = null;
+
+  if (auth0Session) {
+    const [user] = await db
+      .insert(users)
+      .values({
+        sub: auth0Session.user.sub,
+        email: auth0Session.user.email ?? "",
+        name: auth0Session.user.name ?? null,
+        image: auth0Session.user.picture ?? null,
+      })
+      .onConflictDoUpdate({
+        target: users.sub,
+        set: {
+          name: auth0Session.user.name ?? null,
+          image: auth0Session.user.picture ?? null,
+        },
+      })
+      .returning({ id: users.id });
+
+    if (user) sessionUser = { id: user.id };
+  }
+
   return {
     db,
-    session: auth0Session
-      ? {
-          user: {
-            id: auth0Session.user.sub,
-          },
-        }
-      : (null as AuthSession),
+    session: sessionUser ? { user: sessionUser } : (null as AuthSession),
     ...opts,
   };
 };
