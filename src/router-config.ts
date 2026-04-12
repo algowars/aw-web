@@ -5,6 +5,8 @@ export const routerConfig = {
   leaderboards: { path: "/leaderboards" },
   login: { path: "/auth/login" },
   signup: { path: "/auth/login?screen_hint=signup" },
-  forgotPassword: { path: "/forgot-password" },
+  logOut: { path: "/auth/logout" },
   about: { path: "/about" },
+  privacyPolicy: { path: "/privacy-policy" },
+  termsOfService: { path: "/terms-of-service" },
 };

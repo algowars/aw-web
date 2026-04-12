@@ -19,7 +19,9 @@ export default async function LandingNavbar() {
       name: "Log Out",
       element: (
         <Button variant="default" size="lg" asChild>
-          <a href="/auth/logout">Log Out</a>
+          <Link href={routerConfig.logOut.path} data-cy="logout-btn">
+            Log Out
+          </Link>
         </Button>
       ),
     },
@@ -30,7 +32,9 @@ export default async function LandingNavbar() {
       name: "Log In",
       element: (
         <Button size="lg" asChild>
-          <Link href={routerConfig.login.path}>Log In</Link>
+          <Link href={routerConfig.login.path} data-cy="login-btn">
+            Log In
+          </Link>
         </Button>
       ),
     },
@@ -39,6 +43,7 @@ export default async function LandingNavbar() {
       element: (
         <Link
           href={routerConfig.signup.path}
+          data-cy="signup-btn"
           className="text-muted-foreground hover:text-foreground transition-colors"
         >
           Sign Up

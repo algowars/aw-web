@@ -16,6 +16,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { routerConfig } from "@/router-config";
 import { useUserStore } from "@/stores/user-store";
 import {
   ChevronsUpDownIcon,
@@ -25,6 +26,7 @@ import {
   BellIcon,
   LogOutIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -46,6 +48,7 @@ export function NavUser() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
+              data-cy="account-dropdown-trigger"
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
@@ -106,10 +109,10 @@ export function NavUser() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <a href="/auth/logout">
+              <Link href={routerConfig.logOut.path} data-cy="logout-btn">
                 <LogOutIcon />
                 Log out
-              </a>
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
