@@ -11,15 +11,20 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { eq } from "drizzle-orm";
 import { db } from "@/server/db";
 import { users } from "@/server/db/schema";
 import { auth0 } from "../../lib/auth0";
 
+type AuthenticatedUser = {
+  id: string;
+  sub: string;
+  email: string | null;
+  name: string | null;
+  image: string | null;
+};
+
 type AuthSession = {
-  user: {
-    id: string;
-  };
+  user: AuthenticatedUser;
 } | null;
 
 /**
@@ -37,7 +42,7 @@ type AuthSession = {
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const auth0Session = await auth0.getSession();
 
-  let sessionUser: { id: string } | null = null;
+  let sessionUser: AuthenticatedUser | null = null;
 
   if (auth0Session) {
     const [user] = await db
@@ -51,13 +56,21 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
       .onConflictDoUpdate({
         target: users.sub,
         set: {
+          email: auth0Session.user.email ?? "",
           name: auth0Session.user.name ?? null,
           image: auth0Session.user.picture ?? null,
         },
       })
       .returning({ id: users.id });
 
-    if (user) sessionUser = { id: user.id };
+    if (user)
+      sessionUser = {
+        id: user.id,
+        sub: auth0Session.user.sub,
+        email: auth0Session.user.email ?? null,
+        name: auth0Session.user.name ?? null,
+        image: auth0Session.user.picture ?? null,
+      };
   }
 
   return {

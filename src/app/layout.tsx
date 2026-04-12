@@ -1,5 +1,6 @@
 import { type Metadata } from "next";
 import { Geist, Inter } from "next/font/google";
+import { AuthUserSync } from "../auth/auth-user-sync";
 import { TRPCReactProvider } from "@/trpc/react";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
@@ -31,6 +32,7 @@ export default function RootLayout({
     >
       <body>
         <TRPCReactProvider>
+          <AuthUserSync />
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
