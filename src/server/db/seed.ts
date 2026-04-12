@@ -18,8 +18,7 @@ export const featureToggles = createTable("feature_toggles", (d) => ({
 
 const connectionString = process.env.DATABASE_URL;
 
-if (!connectionString)
-  throw new Error("DATABASE_URL not found on .env");
+if (!connectionString) throw new Error("DATABASE_URL not found on .env");
 
 const main = async () => {
   const client = postgres(connectionString);
