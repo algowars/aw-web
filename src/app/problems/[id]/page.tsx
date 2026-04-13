@@ -31,9 +31,14 @@ export default async function ProblemDetailsPage({
         ))}
       </div>
 
-      <h1 className="mb-6 text-2xl font-semibold">{problem.title}</h1>
+      <h1 data-cy="problem-title" className="mb-6 text-2xl font-semibold">
+        {problem.title}
+      </h1>
 
-      <article className="prose prose-neutral max-w-none whitespace-pre-wrap">
+      <article
+        data-cy="problem-question"
+        className="prose prose-neutral max-w-none whitespace-pre-wrap"
+      >
         {problem.question}
       </article>
     </main>

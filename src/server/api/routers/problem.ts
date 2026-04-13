@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-import {
-  executeProblem,
-  getProblemsPageable,
-} from "@/server/services/problem-service";
+import { getProblemsPageable } from "@/server/services/problem-service";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const problemRouter = createTRPCRouter({
@@ -16,14 +13,5 @@ export const problemRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       return getProblemsPageable(ctx.db, input);
-    }),
-  execute: publicProcedure
-    .input(
-      z.object({
-        id: z.string().min(1),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      return executeProblem(ctx.db, input.id);
     }),
 });
