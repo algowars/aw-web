@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { ProblemsTable } from "@/components/problems/problems-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,8 +14,14 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { api } from "@/trpc/server";
 
-export default function Page() {
+export default async function Page() {
+  const problemsPage = await api.problem.getProblemsPageable({
+    page: 1,
+    pageSize: 25,
+  });
+
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
@@ -42,12 +49,9 @@ export default function Page() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
+          <div className="bg-card rounded-xl border p-4">
+            <ProblemsTable problems={problemsPage.items} />
           </div>
-          <div className="bg-muted/50 min-h-screen flex-1 rounded-xl md:min-h-min" />
         </div>
       </SidebarInset>
     </SidebarProvider>
