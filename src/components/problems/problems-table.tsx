@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { routerConfig } from "@/router-config";
 
 type ProblemsTableItem = {
   id: string;
@@ -46,12 +47,17 @@ export function ProblemsTable({ problems }: ProblemsTableProps) {
           problems.map((problem) => (
             <TableRow
               key={problem.id}
+              data-cy="problem-item"
               className="cursor-pointer"
-              onClick={() => router.push(`/dashboard/problems/${problem.id}`)}
+              onClick={() =>
+                router.push(routerConfig.problems.execute({ id: problem.id }))
+              }
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
-                  router.push(`/dashboard/problems/${problem.id}`);
+                  router.push(
+                    routerConfig.problems.execute({ id: problem.id }),
+                  );
                 }
               }}
               role="button"

@@ -13,11 +13,6 @@ type PageableProblem = typeof problems.$inferSelect & {
   tags: string[];
 };
 
-type ProblemDetails = typeof problems.$inferSelect & {
-  status: ProblemStatus;
-  tags: string[];
-};
-
 export async function getProblemsPageable(
   db: typeof database,
   pageRequest: PageRequest,
@@ -65,32 +60,5 @@ export async function getProblemsPageable(
     page: pageRequest.page,
     pageSize: pageRequest.pageSize,
     totalItems: countResult?.totalItems ?? 0,
-  };
-}
-
-export async function executeProblem(
-  db: typeof database,
-  id: string,
-): Promise<ProblemDetails | null> {
-  const problem = await db.query.problems.findFirst({
-    where: (problems, { eq }) => eq(problems.id, id),
-  });
-
-  if (!problem) {
-    return null;
-  }
-
-  const problemTagRows = await db
-    .select({
-      tagValue: tags.value,
-    })
-    .from(problemTags)
-    .innerJoin(tags, eq(problemTags.tagId, tags.id))
-    .where(eq(problemTags.problemId, id));
-
-  return {
-    ...problem,
-    status: toProblemStatus(problem.statusId),
-    tags: problemTagRows.map((row) => row.tagValue),
   };
 }
