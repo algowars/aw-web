@@ -7,9 +7,12 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    - cron: "0 2 * * *"
 
 jobs:
   e2e:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
 
     services:
@@ -74,3 +77,38 @@ jobs:
           start: pnpm start
           wait-on: http://localhost:3000
           wait-on-timeout: 60
+
+  e2e-nightly-prod:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+
+    env:
+      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      CYPRESS_BASE_URL: ${{ secrets.PRODUCTION_APP_BASE_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+        with:
+          version: 10.23.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Cypress binary
+        run: pnpm exec cypress install
+
+      - name: Run Cypress tests against production
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
