@@ -1,34 +1,23 @@
-import { users } from "@/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { getUserBySub, upsertUser } from "@/server/services/user-service";
 
 export const userRouter = createTRPCRouter({
   syncFromLogin: protectedProcedure.mutation(async ({ ctx }) => {
     const { sub, email, name, image } = ctx.session.user;
 
-    const [user] = await ctx.db
-      .insert(users)
-      .values({
-        sub,
-        email: email ?? "",
-        name,
-        image,
-      })
-      .onConflictDoUpdate({
-        target: users.sub,
-        set: {
-          email: email ?? "",
-          name,
-          image,
-        },
-      })
-      .returning();
+    if (!email) {
+      throw new Error("Email is required to sync user data");
+    }
 
-    return user;
+    return upsertUser(ctx.db, {
+      sub,
+      email,
+      name,
+      image,
+    });
   }),
 
   getBySub: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.sub, ctx.session.user.sub),
-    });
+    return getUserBySub(ctx.db, ctx.session.user.sub);
   }),
 });

@@ -17,4 +17,11 @@ export default defineConfig({
     auth0_scope: "",
     auth0_client_id: process.env.AUTH0_CLIENT_ID,
   },
+
+  component: {
+    devServer: {
+      framework: "next",
+      bundler: "webpack",
+    },
+  },
 });

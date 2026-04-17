@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { api } from "@/trpc/server";
 
-export default async function Page() {
+export default async function ProblemsPage() {
   const problemsPage = await api.problem.getProblemsPageable({
     page: 1,
     pageSize: 25,
@@ -36,18 +36,17 @@ export default async function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Build Your Application
-                  </BreadcrumbLink>
+                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                  <BreadcrumbPage>Problems</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
+
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="bg-card rounded-xl border p-4">
             <ProblemsTable problems={problemsPage.items} />
