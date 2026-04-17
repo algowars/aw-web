@@ -12,7 +12,7 @@ export default async function ProblemDetailsPage({
   params,
 }: ProblemDetailsPageProps) {
   const { id } = await params;
-  const problem = await api.problem.execute({ id });
+  const problem = await api.problem.getProblemById({ id });
 
   if (!problem) {
     notFound();

@@ -8,7 +8,9 @@ import {
 import { type db as database } from "@/server/db";
 import { problemTags, problems, tags } from "@/server/db/schema";
 
-type PageableProblem = typeof problems.$inferSelect & {
+type Problem = typeof problems.$inferSelect;
+
+type PageableProblem = Problem & {
   status: ProblemStatus;
   tags: string[];
 };
@@ -60,5 +62,32 @@ export async function getProblemsPageable(
     page: pageRequest.page,
     pageSize: pageRequest.pageSize,
     totalItems: countResult?.totalItems ?? 0,
+  };
+}
+
+export async function getProblemById(
+  db: typeof database,
+  id: string,
+): Promise<PageableProblem | null> {
+  const problemRow = await db.query.problems.findFirst({
+    where: eq(problems.id, id),
+  });
+
+  if (!problemRow) {
+    return null;
+  }
+
+  const problemTagRows = await db
+    .select({
+      tagValue: tags.value,
+    })
+    .from(problemTags)
+    .innerJoin(tags, eq(problemTags.tagId, tags.id))
+    .where(eq(problemTags.problemId, id));
+
+  return {
+    ...problemRow,
+    status: toProblemStatus(problemRow.statusId),
+    tags: problemTagRows.map((row) => row.tagValue),
   };
 }
