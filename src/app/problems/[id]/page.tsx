@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 
 import { api } from "@/trpc/server";
 
+import { ProblemEditorPoc } from "./problem-editor-poc";
+
 type ProblemDetailsPageProps = {
   params: Promise<{
     id: string;
@@ -41,6 +43,10 @@ export default async function ProblemDetailsPage({
       >
         {problem.question}
       </article>
+
+      <section className="mt-8 h-[520px]" data-cy="problem-editor-poc">
+        <ProblemEditorPoc />
+      </section>
     </main>
   );
 }
